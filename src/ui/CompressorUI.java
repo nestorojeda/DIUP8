@@ -135,6 +135,7 @@ public class CompressorUI extends javax.swing.JFrame {
 
     private boolean folderSelected = false;
     private String selectedPath = "";
+    private File selectedFolder;
     
     private void compressButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compressButtonActionPerformed
        
@@ -150,13 +151,18 @@ public class CompressorUI extends javax.swing.JFrame {
                 }
                 
                 File f = destinationChooser.getCurrentDirectory();
-       
+                
+                Worker w = new Worker();
+                w.setFiles(selectedFolder, new ArrayList());
+                w.setDestination(destinationChooser.getCurrentDirectory().toString());
                 
                 try {
-                    new Worker().doInBackground();
+                    w.doInBackground();
                 } catch (Exception ex) {
                     Logger.getLogger(CompressorUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                
+                
                 
              
             } else {
@@ -185,6 +191,7 @@ public class CompressorUI extends javax.swing.JFrame {
                setSelectedPath(originChooser.getCurrentDirectory().toString());
                originLabel.setText( originChooser.getCurrentDirectory().toString());
                folderSelected = true;
+               selectedFolder = originChooser.getCurrentDirectory();
                
         } else {
             System.out.println("No Selection ");
