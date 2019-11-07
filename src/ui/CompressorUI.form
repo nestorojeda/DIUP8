@@ -67,10 +67,13 @@
               <Component id="compressButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="148" max="-2" attributes="0"/>
           </Group>
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="106" max="-2" attributes="0"/>
-              <Component id="originLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="originLabel" max="32767" attributes="0"/>
+                  <Component id="progressBar" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -81,7 +84,9 @@
               <Component id="originLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
               <Component id="compressButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="130" max="32767" attributes="0"/>
+              <EmptySpace pref="103" max="32767" attributes="0"/>
+              <Component id="progressBar" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -99,6 +104,8 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Origen:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JProgressBar" name="progressBar">
     </Component>
   </SubComponents>
 </Form>

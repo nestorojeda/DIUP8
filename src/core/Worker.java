@@ -5,15 +5,22 @@
  */
 package core;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import static java.lang.Math.random;
 import java.util.List;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.swing.JDialog;
+import javax.swing.JProgressBar;
+import javax.swing.JFrame;
 import javax.swing.SwingWorker;
 
 /**
@@ -23,41 +30,42 @@ import javax.swing.SwingWorker;
 public class Worker extends SwingWorker<Double, Integer> {
    // Esta etiqueta se recibe en el constructor o a través de un
    // metodo setEtiqueta().
+    
+    public Worker(JFrame parentFrame){
+       
+    }
 
 
-   private List<String> files;
-   private String destination;
+   private List<File> files;
+   private File destination;
    private final int BUFFER_SIZE = 4096;
+   private String name;
     
     @Override
     public Double doInBackground() throws Exception {
    // Mostramos el nombre del hilo, para ver que efectivamente
    // esto NO se ejecuta en el hilo de eventos.
         System.out.println("doInBackground() esta en el hilo "
-        + Thread.currentThread().getName()); 
-        
-        /********** Algo de procesamiento costoso ***********/
-//        for (int i = 0; i < 10; i++) {
-//            try {
-//                Thread.sleep(1000);
-//                System.out.print(i);
-//            } catch (InterruptedException e) {
-//                System.out.println("interrumpido");
-//            }
-//            publish(i);
-//        }      
+        + Thread.currentThread().getName());        
+
         try{
             // Objeto para referenciar a los archivos que queremos comprimir
             BufferedInputStream origin = null;
             // Objeto para referenciar el archivo zip de salida
-            FileOutputStream dest = new FileOutputStream(destination);
+            FileOutputStream dest = new FileOutputStream(destination.getPath()+"/"+ name+".zip");
             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
             // Buffer de transferencia para mandar datos a comprimir
             byte[] data = new byte[BUFFER_SIZE];
-            for (String filename : files) {
-                FileInputStream fi = new FileInputStream(filename);
+            int i = 0;
+            setProgress(i);
+
+            for (File file : files) {
+                i++;
+                
+                setProgress((i/files.size())*100);
+                FileInputStream fi = new FileInputStream(file);
                 origin = new BufferedInputStream(fi, BUFFER_SIZE);
-                ZipEntry entry = new ZipEntry( filename );
+                ZipEntry entry = new ZipEntry( file.getName() );
                 out.putNextEntry( entry );
                 // Leemos datos desde el archivo origen y los mandamos al archivo destino
                 int count;
@@ -67,12 +75,9 @@ public class Worker extends SwingWorker<Double, Integer> {
                 // Cerramos el archivo origen, ya enviado a comprimir
                 origin.close();
             }
-            // Cerramos el archivo zip
             out.close();
         }
-        catch( IOException e ) {
-            e.printStackTrace();
-        }
+        catch(IOException e ) {}
         return 100.0;
     }
     
@@ -83,6 +88,7 @@ public class Worker extends SwingWorker<Double, Integer> {
        System.out.println("done() esta en el hilo " + Thread.currentThread().getName());     
     }
 
+    public void setName(String s){name=s;}
     
     @Override
     protected void process(List<Integer> chunks) {
@@ -93,17 +99,20 @@ public class Worker extends SwingWorker<Double, Integer> {
     
     
     
-    public void setDestination(String s){destination = s;}
-    public void setFiles(File folder, List<String> result){
+    public void setDestination(File f){destination = f;}
+    public void setFiles(File folder, List<File> result){
+        
         for (final File f : folder.listFiles()) {
             if (f.isDirectory()) {
                 setFiles(f, result);
             }
             if (f.isFile()) {
-                result.add(f.getAbsolutePath());
+                result.add(f);
             }
         }
+        
         files = result;
+        
     }
 
 }

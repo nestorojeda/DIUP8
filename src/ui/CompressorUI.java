@@ -3,6 +3,8 @@ package ui;
 import core.Worker;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +28,26 @@ public class CompressorUI extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
+    
+    private final Worker w;
     public CompressorUI() {
         initComponents();
-         addWindowListener(new WindowAdapter() {
+        setLocationRelativeTo(null);
+        w = new Worker(this);
+        
+        w.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent e) {
+                if ("progress".equals(e.getPropertyName())) {
+                    progressBar.setIndeterminate(false);
+                    progressBar.setValue((Integer) e.getNewValue());
+                }
+            }
+        });
+        
+
+        addWindowListener(new WindowAdapter() {
              
             @Override
             public void windowClosing(WindowEvent e) {
@@ -57,6 +76,7 @@ public class CompressorUI extends javax.swing.JFrame {
         originChooser = new javax.swing.JFileChooser();
         compressButton = new javax.swing.JButton();
         originLabel = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
         menuBar = new javax.swing.JMenuBar();
         fileMenuItem = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -108,9 +128,11 @@ public class CompressorUI extends javax.swing.JFrame {
                 .addComponent(compressButton)
                 .addGap(148, 148, 148))
             .addGroup(layout.createSequentialGroup()
-                .addGap(106, 106, 106)
-                .addComponent(originLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(originLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -119,7 +141,9 @@ public class CompressorUI extends javax.swing.JFrame {
                 .addComponent(originLabel)
                 .addGap(45, 45, 45)
                 .addComponent(compressButton)
-                .addContainerGap(130, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 103, Short.MAX_VALUE)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
@@ -140,31 +164,31 @@ public class CompressorUI extends javax.swing.JFrame {
     private void compressButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compressButtonActionPerformed
        
        if(folderSelected){
-            destinationChooser.setCurrentDirectory(new java.io.File("."));
+           
             destinationChooser.setDialogTitle("Selecciona una carpeta de destino");
             destinationChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             destinationChooser.setAcceptAllFileFilterUsed(false);
+            
             if (destinationChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
                 if(selectedPath.equals(destinationChooser.getCurrentDirectory().toString())){
                     warningDialog("La carpeta de origen y destino no puede ser la misma");
                     compressButtonActionPerformed(evt);
                 }
                 
-                File f = destinationChooser.getCurrentDirectory();
+                File f = destinationChooser.getSelectedFile();
                 
-                Worker w = new Worker();
+                
+                w.setName(selectedFolder.getName());
                 w.setFiles(selectedFolder, new ArrayList());
-                w.setDestination(destinationChooser.getCurrentDirectory().toString());
+                w.setDestination(f);
                 
                 try {
                     w.doInBackground();
                 } catch (Exception ex) {
                     Logger.getLogger(CompressorUI.class.getName()).log(Level.SEVERE, null, ex);
+                
                 }
                 
-                
-                
-             
             } else {
                 System.out.println("Error");
                 
@@ -181,17 +205,16 @@ public class CompressorUI extends javax.swing.JFrame {
     private void openMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuItemActionPerformed
         // TODO add your handling code here:
         
-        originChooser.setCurrentDirectory(new java.io.File("."));
         originChooser.setDialogTitle("Selecciona una carpeta que quieres comprimir");
         originChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         originChooser.setAcceptAllFileFilterUsed(false);
        
         
         if (originChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+               selectedFolder = originChooser.getSelectedFile();
                setSelectedPath(originChooser.getCurrentDirectory().toString());
-               originLabel.setText( originChooser.getCurrentDirectory().toString());
+               originLabel.setText(selectedFolder.toString());
                folderSelected = true;
-               selectedFolder = originChooser.getCurrentDirectory();
                
         } else {
             System.out.println("No Selection ");
@@ -258,6 +281,7 @@ public class CompressorUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem openMenuItem;
     private javax.swing.JFileChooser originChooser;
     private javax.swing.JLabel originLabel;
+    private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
 }
 
