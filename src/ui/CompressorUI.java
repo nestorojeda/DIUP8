@@ -1,15 +1,14 @@
 
 package ui;
-import core.Worker;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -25,16 +24,16 @@ import javax.swing.JOptionPane;
  */
 public class CompressorUI extends javax.swing.JFrame {
 
-    /**
-     * Creates new form NewJFrame
-     */
+   
+    private Worker w;
+    private File fileToZip, destinationFolder;
+    private String originPath, destinationPath;
+    private boolean originSelected = false;
     
-    private final Worker w;
     
     public CompressorUI() {
         initComponents();
         setLocationRelativeTo(null);
-        w = new Worker(this); 
         initListeners();
        
     }
@@ -54,13 +53,14 @@ public class CompressorUI extends javax.swing.JFrame {
         compressButton = new javax.swing.JButton();
         originLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
+        destinationLabel = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
         fileMenuItem = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
-        editMenuItem = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         compressButton.setText("Comprimir");
         compressButton.addActionListener(new java.awt.event.ActionListener() {
@@ -70,6 +70,8 @@ public class CompressorUI extends javax.swing.JFrame {
         });
 
         originLabel.setText("Origen:");
+
+        destinationLabel.setText("Destino:");
 
         fileMenuItem.setText("Archivo");
 
@@ -91,36 +93,40 @@ public class CompressorUI extends javax.swing.JFrame {
 
         menuBar.add(fileMenuItem);
 
-        editMenuItem.setText("Editar");
-        menuBar.add(editMenuItem);
-
         setJMenuBar(menuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(145, Short.MAX_VALUE)
-                .addComponent(compressButton)
-                .addGap(148, 148, 148))
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(originLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(131, 131, 131)
+                        .addComponent(compressButton)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 393, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(originLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
+                                .addGap(277, 277, 277))
+                            .addComponent(destinationLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(51, 51, 51)
-                .addComponent(originLabel)
-                .addGap(45, 45, 45)
+                .addGap(54, 54, 54)
                 .addComponent(compressButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 103, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addComponent(originLabel)
+                .addGap(18, 18, 18)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(26, 26, 26)
+                .addComponent(destinationLabel)
+                .addGap(38, 38, 38))
         );
 
         pack();
@@ -134,38 +140,27 @@ public class CompressorUI extends javax.swing.JFrame {
                 }
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
-    private boolean folderSelected = false;
-    private String selectedPath = "";
-    private File selectedFolder;
-    
     private void compressButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compressButtonActionPerformed
        
-       if(folderSelected){
+       if(originSelected){
            
             destinationChooser.setDialogTitle("Selecciona una carpeta de destino");
             destinationChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             destinationChooser.setAcceptAllFileFilterUsed(false);
             
             if (destinationChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
-                if(selectedPath.equals(destinationChooser.getCurrentDirectory().toString())){
+                
+                if(originPath.equals(destinationChooser.getCurrentDirectory().toString())){
                     warningDialog("La carpeta de origen y destino no puede ser la misma");
                     compressButtonActionPerformed(evt);
                 }
                 
-                File f = destinationChooser.getSelectedFile();
+                destinationFolder = destinationChooser.getSelectedFile();
+                destinationPath=destinationFolder.toString();
                 
-                
-                w.setName(selectedFolder.getName());
-                w.setFiles(selectedFolder, new ArrayList());
-                w.setDestination(f);
-                
-                try {
-                    w.doInBackground();
-                } catch (Exception ex) {
-                    Logger.getLogger(CompressorUI.class.getName()).log(Level.SEVERE, null, ex);
-                
-                }
-                
+                w = new Worker(this);
+                w.execute();
+                                                 
             } else {
                 System.out.println("Error");
                 
@@ -188,21 +183,18 @@ public class CompressorUI extends javax.swing.JFrame {
        
         
         if (originChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
-               selectedFolder = originChooser.getSelectedFile();
-               setSelectedPath(originChooser.getCurrentDirectory().toString());
-               originLabel.setText(selectedFolder.toString());
-               folderSelected = true;
-               
+               fileToZip = originChooser.getSelectedFile();
+               originPath = fileToZip.toString();
+               originLabel.setText("Origen: " + originPath);
+               originSelected = true;
+              
         } else {
             System.out.println("No Selection ");
         }
         
     }//GEN-LAST:event_openMenuItemActionPerformed
 
-    private void setSelectedPath(String s){
-        selectedPath = s;
-    }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -251,7 +243,7 @@ public class CompressorUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton compressButton;
     private javax.swing.JFileChooser destinationChooser;
-    private javax.swing.JMenu editMenuItem;
+    private javax.swing.JLabel destinationLabel;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenuItem;
     private javax.swing.JMenuBar menuBar;
@@ -262,16 +254,6 @@ public class CompressorUI extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void initListeners() {
-        w.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent e) {
-                if ("progress".equals(e.getPropertyName())) {
-                    progressBar.setIndeterminate(false);
-                    progressBar.setValue((Integer) e.getNewValue());
-                }
-            }
-        });
-
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -284,7 +266,84 @@ public class CompressorUI extends javax.swing.JFrame {
             }
         });
     }
+    
+    
+    //Functions to compress files
+    
+    
+    public void compress(String origin, String destination) throws IOException{
+        compressButton.setEnabled(false);
+        System.out.println("Log: Compression proccess started in: " +  origin + " to: "+ destination);
+        destination = destination+"\\"+fileNameCreator();
+        destinationLabel.setText("Destino: " + destination);
+        System.out.println("Log: Full destination path: " + destination);
+        int value = 0;
+        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(destination));
+        addFolder("",origin, zip, value);
+        zip.flush();
+        zip.close();
+        System.out.println("Log: Compression proccess finished");
+        destinationLabel.setText("");
+        compressButton.setEnabled(true);
+        progressBar.setValue(0);
+    }
+    
+    
+    private void addFolder(String path, String folder, ZipOutputStream zip, int value) throws FileNotFoundException, IOException{
+        File f = new File(folder);
+        for (String fileName : f.list()) {
+            
+            progressBar.setValue(value+=1);
+            System.out.println("Log: progress at: " + value);
+            progressBar.repaint();
+
+            if (path.equals("")) {
+                addFile(f.getName(), folder + "/" + fileName, zip, value);
+            } else {
+                addFile(path + "/" + f.getName(), folder + "/" + fileName, zip, value);
+            }
+        }
+    }
+    
+    
+    private final int BUFFER_SIZE = 4096;
+    
+    private void addFile(String path, String folder, ZipOutputStream zip, int value) throws FileNotFoundException, IOException{
+        
+        progressBar.setValue(value+=1);
+        System.out.println("Log: progress at: " + value);
+        progressBar.repaint();
+        
+        File f = new File(folder);
+        if (f.isDirectory()) {
+            addFolder(path, folder, zip, value);
+        } else {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int count;
+            FileInputStream input = new FileInputStream(f);
+            zip.putNextEntry(new ZipEntry(path + "/" + f.getName()));
+            while ((count = input.read(buffer)) > 0) {
+                zip.write(buffer, 0, count);
+            }
+        }
+    }
+
+    public String getOriginPath() {
+        return originPath;
+    }
+
+    public String getDestinationPath() {
+        return destinationPath;
+    }
+    
+    private String fileNameCreator(){
+        String aux = originPath.concat(".zip");
+        String[] split = aux.split("\\\\");
+        System.out.println("Log: zip name: " + split[split.length-1] );
+        return split[split.length-1];
+    }
+    
+    
+    
+    
 }
-
-
-
