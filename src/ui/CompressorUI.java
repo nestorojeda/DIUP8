@@ -30,36 +30,13 @@ public class CompressorUI extends javax.swing.JFrame {
      */
     
     private final Worker w;
+    
     public CompressorUI() {
         initComponents();
         setLocationRelativeTo(null);
-        w = new Worker(this);
-        
-        w.addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent e) {
-                if ("progress".equals(e.getPropertyName())) {
-                    progressBar.setIndeterminate(false);
-                    progressBar.setValue((Integer) e.getNewValue());
-                }
-            }
-        });
-        
-
-        addWindowListener(new WindowAdapter() {
-             
-            @Override
-            public void windowClosing(WindowEvent e) {
-                
-                int confirmed = JOptionPane.showConfirmDialog(null, "¿Desea cerrar el programa?", "Cerrar",JOptionPane.YES_NO_OPTION);
-                if (confirmed == JOptionPane.YES_OPTION) {
-                    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                }else{
-                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                }
-            }
-        });
+        w = new Worker(this); 
+        initListeners();
+       
     }
     
     
@@ -283,6 +260,30 @@ public class CompressorUI extends javax.swing.JFrame {
     private javax.swing.JLabel originLabel;
     private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
+
+    private void initListeners() {
+        w.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent e) {
+                if ("progress".equals(e.getPropertyName())) {
+                    progressBar.setIndeterminate(false);
+                    progressBar.setValue((Integer) e.getNewValue());
+                }
+            }
+        });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int confirmed = JOptionPane.showConfirmDialog(null, "¿Desea cerrar el programa?", "Cerrar",JOptionPane.YES_NO_OPTION);
+                if (confirmed == JOptionPane.YES_OPTION) {
+                    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                }else{
+                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                }
+            }
+        });
+    }
 }
 
 
