@@ -260,6 +260,7 @@ public class CompressorUI extends javax.swing.JFrame {
                 if(processing){
                     warningDialog("Por favor, espere a que el proceso termine");
                     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
                 }else{
                     int confirmed = JOptionPane.showConfirmDialog(null, "¿Desea cerrar el programa?", "Cerrar",JOptionPane.YES_NO_OPTION);
                     if (confirmed == JOptionPane.YES_OPTION) {
@@ -385,4 +386,6 @@ public class CompressorUI extends javax.swing.JFrame {
         return split[split.length-1];
     }
 
+  
+    
 }
