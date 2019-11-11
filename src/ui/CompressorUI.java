@@ -117,7 +117,7 @@ public class CompressorUI extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(48, 48, 48)
+                .addGap(25, 25, 25)
                 .addComponent(compressButton)
                 .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(originLabel)
