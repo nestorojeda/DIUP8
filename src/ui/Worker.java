@@ -24,6 +24,7 @@ public class Worker extends SwingWorker<Double, Integer> {
    // metodo setEtiqueta().
 
     private CompressorUI frame;
+    private String destination;
     Worker(CompressorUI parentFrame){
        frame = parentFrame;
     }
@@ -42,6 +43,7 @@ public class Worker extends SwingWorker<Double, Integer> {
     private void compress(String origin, String destination) throws IOException {
         System.out.println("Log: Compression proccess started in: " +  origin + " to: "+ destination);
         destination = destination+"\\"+fileNameCreator();
+        this.destination = destination;
         frame.setDestinationLabel("Destino: " + destination);
         System.out.println("Log: Full destination path: " + destination);
         int value = 0;
@@ -90,6 +92,7 @@ public class Worker extends SwingWorker<Double, Integer> {
 
     @Override
     protected void done() {
+        JOptionPane.showMessageDialog(null,"El archivo generado se enceuntra en: " + destination, "Proceso finalizado",JOptionPane.INFORMATION_MESSAGE);
         frame.finishProcess();
     }
 
