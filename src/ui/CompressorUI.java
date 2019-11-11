@@ -55,6 +55,7 @@ public class CompressorUI extends javax.swing.JFrame {
         originLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
         destinationLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
         fileMenuItem = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -73,6 +74,8 @@ public class CompressorUI extends javax.swing.JFrame {
         originLabel.setText("Origen:");
 
         destinationLabel.setText("Destino:");
+
+        jLabel1.setText("Daniel Delgado Perera y Néstor Ojeda González");
 
         fileMenuItem.setText("Archivo");
 
@@ -113,6 +116,9 @@ public class CompressorUI extends javax.swing.JFrame {
                 .addGap(198, 198, 198)
                 .addComponent(compressButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel1))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -125,7 +131,8 @@ public class CompressorUI extends javax.swing.JFrame {
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
                 .addComponent(destinationLabel)
-                .addGap(38, 38, 38))
+                .addGap(24, 24, 24)
+                .addComponent(jLabel1))
         );
 
         pack();
@@ -242,6 +249,7 @@ public class CompressorUI extends javax.swing.JFrame {
     private javax.swing.JLabel destinationLabel;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenuItem;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;
     private javax.swing.JFileChooser originChooser;
